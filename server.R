@@ -179,7 +179,7 @@ shinyServer(function(input, output, session) {
       options = list(
         pageLength = 10,
         lengthChange = FALSE,
-        scrollY = "300px",
+        scrollY = "100%",
         scrollCollapse = TRUE,
         dom = 't'
       ),
