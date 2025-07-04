@@ -195,7 +195,7 @@ shinyServer(function(input, output, session) {
       rownames = FALSE,
       colnames = c("Catalog Number", "Family", "Genus", "Species", "Subspecies", "aisle", "shelving", "shelf"),
       options = list(
-        pageLength = 10,
+        pageLength = -1,
         lengthChange = FALSE,
         scrollY = "100%",
         scrollCollapse = TRUE,
