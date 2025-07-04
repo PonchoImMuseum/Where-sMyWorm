@@ -10,14 +10,12 @@ shinyUI(
         
         tags$head(
           tags$style(HTML("
-          /* Reset full height for html and body */
           html, body {
             height: 100%;
             margin: 0;
             padding: 0;
           }
 
-          /* Main container fills viewport and uses flex column */
           #shiny-app-container {
             display: flex;
             flex-direction: column;
@@ -28,7 +26,6 @@ shinyUI(
             text-align: center;
           }
 
-          /* Title styling */
           #title-text {
             font-size: 36px;
             font-weight: bold;
@@ -37,7 +34,6 @@ shinyUI(
             user-select: none;
           }
 
-          /* Search bar container styling */
           #search-bar {
             width: 600px;
             margin: 0 auto;
@@ -52,7 +48,6 @@ shinyUI(
             box-sizing: border-box;
           }
 
-          /* Search input styling */
           #catalog_input {
             flex-grow: 1;
             height: 40px;
@@ -68,7 +63,6 @@ shinyUI(
             display: block;
           }
 
-          /* Search buttons styling */
           .search-button {
             width: 40px;
             height: 40px;
@@ -83,7 +77,6 @@ shinyUI(
             flex-shrink: 0;
           }
 
-          /* Stored strings display styling */
           #stored-strings {
             color: #BFBFBF;
             margin: 10px auto 10px auto;
@@ -97,15 +90,18 @@ shinyUI(
             user-select: none;
           }
 
-          /* Clear button container styling */
           #clear-btn-container {
             width: 600px;
             margin: 0 auto 20px auto;
             text-align: center;
           }
 
-          /* Clear button styling */
-          #clear_btn {
+          #clear-export-buttons {
+            display: inline-flex;
+            gap: 30px;
+          }
+
+          #clear_btn, #export_btn {
             background: none;
             border: none;
             color: #D3D3D3;
@@ -117,7 +113,6 @@ shinyUI(
             text-decoration: underline;
           }
 
-          /* Results container fills remaining space and scrolls */
           #results-container {
             flex-grow: 1;
             min-height: 0;
@@ -126,7 +121,7 @@ shinyUI(
             max-width: 900px;
             margin: 0 auto;
             box-sizing: border-box;
-            padding: 10px 10px 50px 10px; /* Added bottom padding to prevent overlap */
+            padding: 10px 10px 50px 10px;
             background-color: rgba(255,255,255,0.1);
             border-radius: 10px;
             color: white;
@@ -135,17 +130,15 @@ shinyUI(
             flex-direction: column;
           }
 
-          /* DataTables wrapper fills container and scrolls */
           .dataTables_wrapper {
             flex-grow: 1;
             overflow-y: auto !important;
             height: 100% !important;
           }
 
-          /* Footer fixed near bottom with margin */
           footer {
             position: fixed;
-            bottom: 10px; /* small margin from bottom */
+            bottom: 10px;
             left: 10px;
             right: 10px;
             color: white;
@@ -157,13 +150,11 @@ shinyUI(
             z-index: 1000;
           }
 
-          /* Hide the file input */
           #file_input {
             display: none !important;
           }
         ")),
           
-          # JavaScript for keyboard and input handling
           tags$script(HTML("
           $(document).on('keydown', '#catalog_input', function(e) {
             if (e.key === 'Enter') {
@@ -192,35 +183,31 @@ shinyUI(
         "))
         ),
         
-        # Title clickable text
         div(id = "title-text", "Where's My Worm?"),
         
-        # Hidden file input wrapped in div with display:none
         div(style = "display:none;",
             fileInput("file_input", "Select input CSV file", accept = ".csv")
         ),
         
-        # Search bar container with input and buttons
         div(id = "search-bar",
             tags$input(id = "catalog_input", type = "text", placeholder = "Type catalogNumber...", autocomplete = "off"),
             actionButton("add_btn", label = "+", class = "search-button"),
             actionButton("search_btn", label = "\uD83D\uDD0D", class = "search-button")
         ),
         
-        # Stored strings display
         div(id = "stored-strings", uiOutput("stored_strings_ui")),
         
-        # Clear button container
         div(id = "clear-btn-container",
-            uiOutput("clear_button_ui")
+            div(id = "clear-export-buttons",
+                uiOutput("clear_button_ui"),
+                uiOutput("export_button_ui")
+            )
         ),
         
-        # Results table output
         div(id = "results-container",
             DT::dataTableOutput("results_table")
         ),
         
-        # Footer
         tags$footer("Prototype app by El Poncho")
       )
   )

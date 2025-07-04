@@ -53,6 +53,13 @@ shinyServer(function(input, output, session) {
                  style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
+  # Render Export button only when search results exist
+  output$export_button_ui <- renderUI({
+    if (is.null(rv$search_results) || nrow(rv$search_results) == 0) return(NULL)
+    downloadButton("export_btn", "Export",
+                   style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
+  })
+  
   # Add string helper
   add_string <- function(new_str) {
     new_str <- trimws(new_str)
@@ -110,6 +117,17 @@ shinyServer(function(input, output, session) {
     perform_search()
     session$sendCustomMessage("clearCustomInput", "catalog_input")
   })
+  
+  # Export results to CSV with timestamp
+  output$export_btn <- downloadHandler(
+    filename = function() {
+      paste0("search_results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), ".csv")
+    },
+    content = function(file) {
+      req(rv$search_results)
+      write.csv(rv$search_results, file, row.names = FALSE)
+    }
+  )
   
   # Perform search helper
   perform_search <- function() {
