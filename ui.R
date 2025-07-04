@@ -10,12 +10,14 @@ shinyUI(
         
         tags$head(
           tags$style(HTML("
+          /* Reset full height for html and body */
           html, body {
             height: 100%;
             margin: 0;
             padding: 0;
           }
 
+          /* Main container fills viewport and uses flex column */
           #shiny-app-container {
             display: flex;
             flex-direction: column;
@@ -26,6 +28,7 @@ shinyUI(
             text-align: center;
           }
 
+          /* Title styling */
           #title-text {
             font-size: 36px;
             font-weight: bold;
@@ -34,6 +37,7 @@ shinyUI(
             user-select: none;
           }
 
+          /* Search bar container styling */
           #search-bar {
             width: 600px;
             margin: 0 auto;
@@ -48,6 +52,7 @@ shinyUI(
             box-sizing: border-box;
           }
 
+          /* Search input styling */
           #catalog_input {
             flex-grow: 1;
             height: 40px;
@@ -63,6 +68,7 @@ shinyUI(
             display: block;
           }
 
+          /* Search buttons styling */
           .search-button {
             width: 40px;
             height: 40px;
@@ -77,6 +83,7 @@ shinyUI(
             flex-shrink: 0;
           }
 
+          /* Stored strings display styling */
           #stored-strings {
             color: #BFBFBF;
             margin: 10px auto 10px auto;
@@ -90,6 +97,7 @@ shinyUI(
             user-select: none;
           }
 
+          /* Clear and Export buttons container styling */
           #clear-btn-container {
             width: 600px;
             margin: 0 auto 20px auto;
@@ -101,6 +109,7 @@ shinyUI(
             gap: 30px;
           }
 
+          /* Clear and Export buttons styling */
           #clear_btn, #export_btn {
             background: none;
             border: none;
@@ -113,6 +122,7 @@ shinyUI(
             text-decoration: underline;
           }
 
+          /* Results container fills remaining space and scrolls */
           #results-container {
             flex-grow: 1;
             min-height: 0;
@@ -121,7 +131,7 @@ shinyUI(
             max-width: 900px;
             margin: 0 auto;
             box-sizing: border-box;
-            padding: 10px 10px 50px 10px;
+            padding: 10px 10px 50px 10px; /* Padding bottom to avoid footer overlap */
             background-color: rgba(255,255,255,0.1);
             border-radius: 10px;
             color: white;
@@ -130,12 +140,14 @@ shinyUI(
             flex-direction: column;
           }
 
+          /* DataTables wrapper fills container and scrolls */
           .dataTables_wrapper {
             flex-grow: 1;
             overflow-y: auto !important;
             height: 100% !important;
           }
 
+          /* Footer fixed near bottom with margin */
           footer {
             position: fixed;
             bottom: 10px;
@@ -150,9 +162,46 @@ shinyUI(
             z-index: 1000;
           }
 
+          /* Hide the file input */
           #file_input {
             display: none !important;
           }
+
+          /* -------------------------
+             DataTable Customizations
+             ------------------------- */
+
+          /* Font color */
+          table.dataTable td, table.dataTable th {
+            color: white; /* <-- Change font color here */
+          }
+
+          /* Overall table background */
+          /* Uncomment to customize */
+          /*
+          table.dataTable {
+            background-color: #f9f9f9; /* <-- Change table background */
+          }
+          */
+
+          /* Alternating row colors */
+          /* Uncomment and customize */
+          /*
+          table.dataTable tbody tr:nth-child(odd) {
+            background-color: #ffffff; /* <-- Odd row color */
+          }
+          table.dataTable tbody tr:nth-child(even) {
+            background-color: #e6f2ff; /* <-- Even row color */
+          }
+          */
+
+          /* Cell borders */
+          /* Uncomment and customize */
+          /*
+          table.dataTable td, table.dataTable th {
+            border: 1px solid #cccccc; /* <-- Cell border color */
+          }
+          */
         ")),
           
           tags$script(HTML("
