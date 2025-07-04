@@ -15,7 +15,7 @@ shinyServer(function(input, output, session) {
   
   # Load default CSV on startup
   observe({
-    default_file <- "/Users/alfonsoaceves/Desktop/script lab/LIB Useful Code/Shelves mapping/combined_with_shelving.csv"
+    default_file <- "combined_with_shelving.csv"
     if (file.exists(default_file)) {
       rv$input_table <- read_csv(default_file, col_types = cols(.default = "c"))
     }
