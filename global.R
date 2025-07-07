@@ -5,7 +5,7 @@ library(tidyverse)
 library(DT)
 
 # Constants
-MAX_STRINGS <- 20
+MAX_STRINGS <- 40
 MAX_STRINGS_PER_ROW <- 10
 
 # Default input file path

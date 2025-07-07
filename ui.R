@@ -180,7 +180,8 @@ shinyUI(
           /* Uncomment to customize */
           /*
           table.dataTable {
-            background-color: #f9f9f9; /* <-- Change table background */
+            # background-color: #f9f9f9; /* <-- Change table background */
+            background-color: transparent !important; /* <-- Change table background */
           }
           */
 
@@ -228,6 +229,12 @@ shinyUI(
           Shiny.addCustomMessageHandler('clearCustomInput', function(id) {
             var el = document.getElementById(id);
             if (el) el.value = '';
+          });
+
+          // Add this handler to focus the search bar
+          Shiny.addCustomMessageHandler('focusInput', function(id) {
+            var el = document.getElementById(id);
+            if (el) el.focus();
           });
         "))
         ),

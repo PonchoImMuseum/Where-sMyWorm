@@ -78,6 +78,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$add_btn, {
     add_string(input$catalog_input)
     session$sendCustomMessage("clearCustomInput", "catalog_input")
+    session$sendCustomMessage("focusInput", "catalog_input")
   })
   
   # Search button clicked
@@ -85,6 +86,7 @@ shinyServer(function(input, output, session) {
     if (nzchar(trimws(input$catalog_input))) {
       add_string(input$catalog_input)
       session$sendCustomMessage("clearCustomInput", "catalog_input")
+      session$sendCustomMessage("focusInput", "catalog_input")
     }
     if (length(rv$stored_strings) == 0) {
       rv$error_msg <- "No strings to search for. Add some first."
@@ -92,6 +94,7 @@ shinyServer(function(input, output, session) {
     }
     perform_search()
     session$sendCustomMessage("clearCustomInput", "catalog_input")
+    session$sendCustomMessage("focusInput", "catalog_input")
   })
   
   # Clear button clicked
@@ -106,6 +109,7 @@ shinyServer(function(input, output, session) {
   observeEvent(input$enter_pressed, {
     add_string(input$catalog_input)
     session$sendCustomMessage("clearCustomInput", "catalog_input")
+    session$sendCustomMessage("focusInput", "catalog_input")
   })
   
   # Cmd/Ctrl + Enter pressed (search)
@@ -116,6 +120,7 @@ shinyServer(function(input, output, session) {
     }
     perform_search()
     session$sendCustomMessage("clearCustomInput", "catalog_input")
+    session$sendCustomMessage("focusInput", "catalog_input")
   })
   
   # Export results to CSV with timestamp
