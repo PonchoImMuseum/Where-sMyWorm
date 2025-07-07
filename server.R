@@ -121,7 +121,7 @@ shinyServer(function(input, output, session) {
   # Export results to CSV with timestamp
   output$export_btn <- downloadHandler(
     filename = function() {
-      paste0("search_results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"), ".csv")
+      paste0("search_results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S", tz = "Europe/Berlin"), ".csv")
     },
     content = function(file) {
       req(rv$search_results)
