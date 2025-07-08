@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyverse)
-library(DT)
-library(reactable)  # Loaded here for future use if needed
+library(reactable)
 
 shinyServer(function(input, output, session) {
   
@@ -132,33 +131,52 @@ shinyServer(function(input, output, session) {
                    style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
-  # Render results table with all columns from search_results using DT
-  output$results_table <- DT::renderDataTable({
-    if (!is.null(rv$error_msg)) {
-      return(datatable(
-        data.frame(Message = rv$error_msg),
-        options = list(dom = 't'),
-        rownames = FALSE,
-        colnames = ""
-      ))
-    }
-    
+  # Render results table with reactable including all columns
+  output$results_table <- renderReactable({
     req(rv$search_results)
     
-    datatable(
+    n_rows <- nrow(rv$search_results)
+    
+    # Calculate dynamic height (min 200px, max 800px)
+    row_height <- 40
+    header_height <- 50
+    dynamic_height <- min(max(n_rows * row_height + header_height, 200), 3800)
+    
+    reactable(
       rv$search_results,
-      rownames = FALSE,
-      options = list(
-        pageLength = -1,
-        lengthChange = FALSE,
-        scrollY = "100%",
-        scrollCollapse = TRUE,
-        dom = 't'
+      columns = list(
+        catalogNumber = colDef(name = "Catalog Number"),
+        FAMILY = colDef(name = "Family"),
+        GENUS = colDef(name = "Genus"),
+        SPECIES = colDef(name = "Species"),
+        SUBSPECIES = colDef(name = "Subspecies"),
+        aisle = colDef(name = "Aisle"),
+        shelving_unit = colDef(name = "Shelving Unit"),
+        shelf = colDef(name = "Shelf"),
+        row_id = colDef(name = "Row ID"),
+        rows_before = colDef(name = "Rows Before"),
+        rows_after = colDef(name = "Rows After")
       ),
-      class = "cell-border stripe",
-      escape = FALSE
+      bordered = TRUE,
+      highlight = TRUE,
+      pagination = FALSE,
+      height = dynamic_height,
+      width = 1500,
+      style = list(
+        backgroundColor = "#3A87FE",
+        color = "white"
+      ),
+      rowStyle = function(index) {
+        if (index %% 2 == 0) {
+          list(backgroundColor = "#2F6FD9")
+        } else {
+          list(backgroundColor = "#3A87FE")
+        }
+      }
     )
   })
+  
+  
   
   # Export search results to CSV with timestamp
   output$export_btn <- downloadHandler(

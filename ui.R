@@ -261,7 +261,7 @@ shinyUI(
         ),
         
         div(id = "results-container",
-            DT::dataTableOutput("results_table")
+            reactableOutput("results_table")
         ),
         
         tags$footer("Prototype app by El Poncho")
