@@ -102,22 +102,7 @@ shinyServer(function(input, output, session) {
       filter(!(FAMILY == "No" & GENUS == "Worm")) %>%
       distinct(catalogNumber) %>%
       pull(catalogNumber)
-    
-    # === Add WormFinder button visibility control here ===
-    if (length(rv$matched_catalog_numbers) > 0) {
-      shinyjs::show("wormfinder_btn")
-    } else {
-      shinyjs::hide("wormfinder_btn")
-      output$wormfinder_list <- renderUI(NULL)  # Clear WormFinder list UI
-    }
   }
-  
-  # Show or hide WormFinder button based on matches
-  output$wormfinder_btn_ui <- renderUI({
-    if (length(rv$matched_catalog_numbers) > 0) {
-      actionButton("wormfinder_btn", "WormFinder", style = "margin: 10px;")
-    }
-  })
   
   # Render WormFinder catalog numbers list on button click using bslib accordion
   observeEvent(input$wormfinder_btn, {
@@ -155,6 +140,13 @@ shinyServer(function(input, output, session) {
   output$clear_button_ui <- renderUI({
     if (length(rv$stored_strings) == 0) return(NULL)
     actionButton("clear_btn", label = "Clear",
+                 style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
+  })
+  
+  # NEW: WormFinder button UI with matching styling
+  output$wormfinder_button_ui <- renderUI({
+    if (length(rv$matched_catalog_numbers) == 0) return(NULL)
+    actionButton("wormfinder_btn", label = "WormFinder",
                  style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   

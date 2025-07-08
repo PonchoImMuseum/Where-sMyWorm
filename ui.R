@@ -96,7 +96,7 @@ shinyUI(
               user-select: none;
             }
 
-            /* Clear and Export buttons container styling */
+            /* Clear, WormFinder, and Export buttons container styling */
             #clear-btn-container {
               width: 600px;
               margin: 0 auto 20px auto;
@@ -106,10 +106,12 @@ shinyUI(
             #clear-export-buttons {
               display: inline-flex;
               gap: 30px;
+              align-items: center;
+              justify-content: center;
             }
 
-            /* Clear and Export buttons styling */
-            #clear_btn, #export_btn {
+            /* Clear, WormFinder, and Export buttons styling */
+            #clear_btn, #wormfinder_btn, #export_btn {
               background: none;
               border: none;
               color: #D3D3D3;
@@ -219,17 +221,17 @@ shinyUI(
         # Display stored search strings
         div(id = "stored-strings", uiOutput("stored_strings_ui")),
         
-        # Clear and Export buttons container
+        # Clear, WormFinder, and Export buttons container (updated order)
         div(id = "clear-btn-container",
             div(id = "clear-export-buttons",
                 uiOutput("clear_button_ui"),
+                uiOutput("wormfinder_button_ui"),  # WormFinder button in the middle
                 uiOutput("export_button_ui")
             )
         ),
         
-        # WormFinder button UI (initially hidden)
+        # WormFinder accordion container
         div(id = "wormfinder-container",
-            shinyjs::hidden(actionButton("wormfinder_btn", "WormFinder", style = "margin: 10px;")),
             uiOutput("wormfinder_list")
         ),
         
