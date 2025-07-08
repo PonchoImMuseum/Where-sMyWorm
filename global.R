@@ -1,19 +1,20 @@
-# global.R
-
 library(shiny)
 library(tidyverse)
 library(DT)
+library(reactable)
+library(purrr)
+library(htmltools)
 
 # Constants
 MAX_STRINGS <- 40
 MAX_STRINGS_PER_ROW <- 10
 
 # Default input file path
-# default_input_file <- "/Users/alfonsoaceves/Desktop/script lab/LIB Useful Code/Shelves mapping/combined_with_shelving.csv"
-
 default_input_file <- "combined_with_shelving.csv"
 
-# Load default data
-input_table <- read_csv(default_input_file, col_types = cols(.default = "c"))
+# Load default data once and add row_id
+input_table <- read_csv(default_input_file, col_types = cols(.default = "c")) %>%
+  mutate(row_id = row_number())
 
-# You can add global helper functions here or in functions.R later
+# Source your functions
+source("functions.R")
