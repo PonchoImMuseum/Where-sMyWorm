@@ -1,6 +1,11 @@
 library(shiny)
 library(tidyverse)
+library(DT)
 library(reactable)
+library(shinyjs)
+library(bslib)       # For accordion UI
+library(purrr)
+library(htmltools)
 
 shinyServer(function(input, output, session) {
   
@@ -8,10 +13,10 @@ shinyServer(function(input, output, session) {
     input_table = input_table,   # Loaded in global.R with row_id
     stored_strings = character(0),
     search_results = NULL,
-    error_msg = NULL
+    error_msg = NULL,
+    matched_catalog_numbers = character(0)
   )
   
-  # Helper function to add a new search string
   add_string <- function(new_str) {
     new_str <- trimws(new_str)
     if (new_str == "") return()
@@ -25,14 +30,12 @@ shinyServer(function(input, output, session) {
     }
   }
   
-  # Add button clicked: add string to stored_strings
   observeEvent(input$add_btn, {
     add_string(input$catalog_input)
     session$sendCustomMessage("clearCustomInput", "catalog_input")
     session$sendCustomMessage("focusInput", "catalog_input")
   })
   
-  # Search button clicked: add string if non-empty, then perform search
   observeEvent(input$search_btn, {
     if (nzchar(trimws(input$catalog_input))) {
       add_string(input$catalog_input)
@@ -48,22 +51,20 @@ shinyServer(function(input, output, session) {
     session$sendCustomMessage("focusInput", "catalog_input")
   })
   
-  # Clear button clicked: reset stored strings and results
   observeEvent(input$clear_btn, {
     rv$stored_strings <- character(0)
     rv$search_results <- NULL
     rv$error_msg <- NULL
+    rv$matched_catalog_numbers <- character(0)
     session$sendCustomMessage("clearCustomInput", "catalog_input")
   })
   
-  # Enter key pressed: add string
   observeEvent(input$enter_pressed, {
     add_string(input$catalog_input)
     session$sendCustomMessage("clearCustomInput", "catalog_input")
     session$sendCustomMessage("focusInput", "catalog_input")
   })
   
-  # Cmd/Ctrl + Enter pressed: perform search
   observeEvent(input$search_pressed, {
     if (length(rv$stored_strings) == 0) {
       rv$error_msg <- "No strings to search for. Add some first."
@@ -74,7 +75,6 @@ shinyServer(function(input, output, session) {
     session$sendCustomMessage("focusInput", "catalog_input")
   })
   
-  # Updated perform_search: use find_catalog_matches_map for each stored string
   perform_search <- function() {
     results_list <- lapply(rv$stored_strings, function(str) {
       matches <- find_catalog_matches_map(rv$input_table, str)
@@ -97,9 +97,44 @@ shinyServer(function(input, output, session) {
     
     rv$search_results <- bind_rows(results_list)
     rv$error_msg <- NULL
+    
+    rv$matched_catalog_numbers <- rv$search_results %>%
+      filter(!(FAMILY == "No" & GENUS == "Worm")) %>%
+      distinct(catalogNumber) %>%
+      pull(catalogNumber)
+    
+    # === Add WormFinder button visibility control here ===
+    if (length(rv$matched_catalog_numbers) > 0) {
+      shinyjs::show("wormfinder_btn")
+    } else {
+      shinyjs::hide("wormfinder_btn")
+      output$wormfinder_list <- renderUI(NULL)  # Clear WormFinder list UI
+    }
   }
   
-  # Render stored strings UI below search bar
+  # Show or hide WormFinder button based on matches
+  output$wormfinder_btn_ui <- renderUI({
+    if (length(rv$matched_catalog_numbers) > 0) {
+      actionButton("wormfinder_btn", "WormFinder", style = "margin: 10px;")
+    }
+  })
+  
+  # Render WormFinder catalog numbers list on button click using bslib accordion
+  observeEvent(input$wormfinder_btn, {
+    req(rv$matched_catalog_numbers)
+    output$wormfinder_list <- renderUI({
+      bslib::accordion(
+        id = "wormfinder_accordion",
+        lapply(rv$matched_catalog_numbers, function(cat_num) {
+          bslib::accordion_panel(
+            title = cat_num,
+            div(id = paste0("table_", gsub("[^A-Za-z0-9]", "_", cat_num)), "Table will load here")
+          )
+        })
+      )
+    })
+  })
+  
   output$stored_strings_ui <- renderUI({
     req(rv$stored_strings)
     if (length(rv$stored_strings) == 0) return(NULL)
@@ -117,30 +152,32 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  # Render Clear button UI conditionally
   output$clear_button_ui <- renderUI({
     if (length(rv$stored_strings) == 0) return(NULL)
     actionButton("clear_btn", label = "Clear",
                  style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
-  # Render Export button UI conditionally
   output$export_button_ui <- renderUI({
     if (is.null(rv$search_results) || nrow(rv$search_results) == 0) return(NULL)
     downloadButton("export_btn", "Export",
                    style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
-  # Render results table with reactable including all columns
   output$results_table <- renderReactable({
+    if (!is.null(rv$error_msg)) {
+      return(
+        reactable(
+          tibble(Message = rv$error_msg),
+          columns = list(Message = colDef(name = "Message")),
+          pagination = FALSE,
+          bordered = TRUE,
+          striped = TRUE
+        )
+      )
+    }
+    
     req(rv$search_results)
-    
-    n_rows <- nrow(rv$search_results)
-    
-    # Calculate dynamic height (min 200px, max 800px)
-    row_height <- 40
-    header_height <- 50
-    dynamic_height <- min(max(n_rows * row_height + header_height, 200), 3800)
     
     reactable(
       rv$search_results,
@@ -158,10 +195,11 @@ shinyServer(function(input, output, session) {
         rows_after = colDef(name = "Rows After")
       ),
       bordered = TRUE,
+      striped = TRUE,
       highlight = TRUE,
       pagination = FALSE,
-      height = dynamic_height,
-      width = 1500,
+      height = 600,
+      width = 1200,
       style = list(
         backgroundColor = "#3A87FE",
         color = "white"
@@ -176,9 +214,6 @@ shinyServer(function(input, output, session) {
     )
   })
   
-  
-  
-  # Export search results to CSV with timestamp
   output$export_btn <- downloadHandler(
     filename = function() {
       paste0("search_results_", format(Sys.time(), "%Y-%m-%d-%H-%M-%S", tz = "Europe/Berlin"), ".csv")
