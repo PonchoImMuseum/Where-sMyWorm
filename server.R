@@ -143,25 +143,30 @@ server <- function(input, output, session) {
   
   # Function to set up catalog observers
   setup_catalog_observers <- function() {
+    cleanup_catalog_observers()
+    
     if (length(rv$matched_catalog_numbers) > 0) {
       for (i in seq_along(rv$matched_catalog_numbers)) {
-        cat_num <- rv$matched_catalog_numbers[i]
-        button_id <- paste0("catalog_btn_", sanitize_for_id(cat_num))
-        
-        # Create observer and store it
-        obs <- observeEvent(input[[button_id]], {
-          tryCatch({
-            rv$selected_catalog_table <- display_catalog_around_full_match(rv$input_table, cat_num)
-            rv$show_wormfinder <- FALSE  # Hide WormFinder after selection
-          }, error = function(e) {
-            rv$error_msg <- paste("Error displaying catalog", cat_num, ":", e$message)
-          })
-        }, ignoreInit = TRUE)
-        
-        rv$catalog_observers[[button_id]] <- obs
+        local({
+          cat_num <- rv$matched_catalog_numbers[i]
+          button_id <- paste0("catalog_btn_", sanitize_for_id(cat_num))
+          
+          obs <- observeEvent(input[[button_id]], {
+            tryCatch({
+              rv$selected_catalog_table <- display_catalog_around_full_match(rv$input_table, cat_num)
+              rv$show_wormfinder <- FALSE
+            }, error = function(e) {
+              rv$error_msg <- paste("Error displaying catalog", cat_num, ":", e$message)
+            })
+          }, ignoreInit = TRUE)
+          
+          rv$catalog_observers[[button_id]] <- obs
+        })
       }
     }
   }
+  
+  
   
   # Updated WormFinder button handler - Toggle visibility
   observeEvent(input$wormfinder_btn, {
