@@ -7,15 +7,24 @@ library(bslib)       # For accordion UI
 library(purrr)
 library(htmltools)
 
-shinyServer(function(input, output, session) {
+server <- function(input, output, session) {
   
   rv <- reactiveValues(
     input_table = input_table,   # Loaded in global.R with row_id
     stored_strings = character(0),
     search_results = NULL,
     error_msg = NULL,
-    matched_catalog_numbers = character(0)
+    matched_catalog_numbers = character(0),
+    selected_catalog_table = NULL,
+    show_wormfinder = FALSE,
+    catalog_observers = list()  # NEW: Track observers for cleanup
   )
+  
+  # Function to sanitize catalog numbers for button IDs
+  sanitize_for_id <- function(cat_num) {
+    # More comprehensive sanitization
+    gsub("[^A-Za-z0-9]", "_", cat_num)
+  }
   
   add_string <- function(new_str) {
     new_str <- trimws(new_str)
@@ -56,6 +65,12 @@ shinyServer(function(input, output, session) {
     rv$search_results <- NULL
     rv$error_msg <- NULL
     rv$matched_catalog_numbers <- character(0)
+    rv$selected_catalog_table <- NULL
+    rv$show_wormfinder <- FALSE
+    
+    # Clean up observers
+    cleanup_catalog_observers()
+    
     session$sendCustomMessage("clearCustomInput", "catalog_input")
   })
   
@@ -102,22 +117,84 @@ shinyServer(function(input, output, session) {
       filter(!(FAMILY == "No" & GENUS == "Worm")) %>%
       distinct(catalogNumber) %>%
       pull(catalogNumber)
+    
+    # Clear selected catalog table when new search is performed
+    rv$selected_catalog_table <- NULL
+    rv$show_wormfinder <- FALSE
+    
+    # Clean up old observers before creating new ones
+    cleanup_catalog_observers()
+    
+    # Set up new observers for the new catalog numbers
+    setup_catalog_observers()
   }
   
-  # Render WormFinder catalog numbers list on button click using bslib accordion
+  # Function to clean up catalog observers
+  cleanup_catalog_observers <- function() {
+    if (length(rv$catalog_observers) > 0) {
+      for (obs in rv$catalog_observers) {
+        if (!is.null(obs)) {
+          obs$destroy()
+        }
+      }
+      rv$catalog_observers <- list()
+    }
+  }
+  
+  # Function to set up catalog observers
+  setup_catalog_observers <- function() {
+    if (length(rv$matched_catalog_numbers) > 0) {
+      for (i in seq_along(rv$matched_catalog_numbers)) {
+        cat_num <- rv$matched_catalog_numbers[i]
+        button_id <- paste0("catalog_btn_", sanitize_for_id(cat_num))
+        
+        # Create observer and store it
+        obs <- observeEvent(input[[button_id]], {
+          tryCatch({
+            rv$selected_catalog_table <- display_catalog_around_full_match(rv$input_table, cat_num)
+            rv$show_wormfinder <- FALSE  # Hide WormFinder after selection
+          }, error = function(e) {
+            rv$error_msg <- paste("Error displaying catalog", cat_num, ":", e$message)
+          })
+        }, ignoreInit = TRUE)
+        
+        rv$catalog_observers[[button_id]] <- obs
+      }
+    }
+  }
+  
+  # Updated WormFinder button handler - Toggle visibility
   observeEvent(input$wormfinder_btn, {
-    req(rv$matched_catalog_numbers)
-    output$wormfinder_list <- renderUI({
-      bslib::accordion(
-        id = "wormfinder_accordion",
-        lapply(rv$matched_catalog_numbers, function(cat_num) {
-          bslib::accordion_panel(
-            title = cat_num,
-            div(id = paste0("table_", gsub("[^A-Za-z0-9]", "_", cat_num)), "Table will load here")
+    rv$show_wormfinder <- !rv$show_wormfinder
+    # Clear selected catalog table when toggling WormFinder
+    if (rv$show_wormfinder) {
+      rv$selected_catalog_table <- NULL
+    }
+  })
+  
+  # Updated WormFinder UI output to be reactive
+  output$wormfinder_list <- renderUI({
+    if (!rv$show_wormfinder || length(rv$matched_catalog_numbers) == 0) {
+      return(NULL)
+    }
+    
+    bslib::accordion(
+      id = "wormfinder_accordion",
+      lapply(rv$matched_catalog_numbers, function(cat_num) {
+        button_id <- paste0("catalog_btn_", sanitize_for_id(cat_num))
+        bslib::accordion_panel(
+          title = cat_num,
+          div(
+            style = "text-align: center; margin: 10px 0;",
+            actionButton(
+              button_id, 
+              label = paste("Show", cat_num, "location"),
+              style = "background-color: #5AC4F6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;"
+            )
           )
-        })
-      )
-    })
+        )
+      })
+    )
   })
   
   output$stored_strings_ui <- renderUI({
@@ -143,7 +220,7 @@ shinyServer(function(input, output, session) {
                  style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
-  # NEW: WormFinder button UI with matching styling
+  # WormFinder button UI with matching styling
   output$wormfinder_button_ui <- renderUI({
     if (length(rv$matched_catalog_numbers) == 0) return(NULL)
     actionButton("wormfinder_btn", label = "WormFinder",
@@ -157,6 +234,11 @@ shinyServer(function(input, output, session) {
   })
   
   output$results_table <- renderReactable({
+    # Show selected catalog table if available
+    if (!is.null(rv$selected_catalog_table)) {
+      return(rv$selected_catalog_table)
+    }
+    
     if (!is.null(rv$error_msg)) {
       return(
         reactable(
@@ -216,4 +298,9 @@ shinyServer(function(input, output, session) {
     }
   )
   
-})
+  # Clean up observers when session ends
+  session$onSessionEnded(function() {
+    cleanup_catalog_observers()
+  })
+  
+}

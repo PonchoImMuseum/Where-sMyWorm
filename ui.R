@@ -2,13 +2,12 @@ library(shiny)
 library(shinyjs)    # For JavaScript enhancements
 library(shinyWidgets) # For accordion widget
 
-shinyUI(
-  div(id = "shiny-app-container",
-      fluidPage(
-        useShinyjs(),  # Initialize shinyjs
-        
-        tags$head(
-          tags$style(HTML("
+ui <- div(id = "shiny-app-container",
+          fluidPage(
+            useShinyjs(),  # Initialize shinyjs
+            
+            tags$head(
+              tags$style(HTML("
             /* Reset full height for html and body */
             html, body {
               height: 100%;
@@ -169,8 +168,8 @@ shinyUI(
               display: none !important;
             }
           ")),
-          
-          tags$script(HTML("
+              
+              tags$script(HTML("
             $(document).on('keydown', '#catalog_input', function(e) {
               if (e.key === 'Enter') {
                 e.preventDefault();
@@ -201,47 +200,46 @@ shinyUI(
               if (el) el.focus();
             });
           "))
-        ),
-        
-        # App title
-        div(id = "title-text", "Where's My Worm?"),
-        
-        # Hidden file input for CSV upload
-        div(style = "display:none;",
-            fileInput("file_input", "Select input CSV file", accept = ".csv")
-        ),
-        
-        # Search bar with input and buttons
-        div(id = "search-bar",
-            tags$input(id = "catalog_input", type = "text", placeholder = "Type catalogNumber...", autocomplete = "off"),
-            actionButton("add_btn", label = "+", class = "search-button"),
-            actionButton("search_btn", label = "\uD83D\uDD0D", class = "search-button")
-        ),
-        
-        # Display stored search strings
-        div(id = "stored-strings", uiOutput("stored_strings_ui")),
-        
-        # Clear, WormFinder, and Export buttons container (updated order)
-        div(id = "clear-btn-container",
-            div(id = "clear-export-buttons",
-                uiOutput("clear_button_ui"),
-                uiOutput("wormfinder_button_ui"),  # WormFinder button in the middle
-                uiOutput("export_button_ui")
-            )
-        ),
-        
-        # WormFinder accordion container
-        div(id = "wormfinder-container",
-            uiOutput("wormfinder_list")
-        ),
-        
-        # Results container with reactable output
-        div(id = "results-container",
-            reactableOutput("results_table")
-        ),
-        
-        # Footer text
-        tags$footer("Prototype app by El Poncho")
-      )
-  )
+            ),
+            
+            # App title
+            div(id = "title-text", "Where's My Worm?"),
+            
+            # Hidden file input for CSV upload
+            div(style = "display:none;",
+                fileInput("file_input", "Select input CSV file", accept = ".csv")
+            ),
+            
+            # Search bar with input and buttons
+            div(id = "search-bar",
+                tags$input(id = "catalog_input", type = "text", placeholder = "Type catalogNumber...", autocomplete = "off"),
+                actionButton("add_btn", label = "+", class = "search-button"),
+                actionButton("search_btn", label = "\uD83D\uDD0D", class = "search-button")
+            ),
+            
+            # Display stored search strings
+            div(id = "stored-strings", uiOutput("stored_strings_ui")),
+            
+            # Clear, WormFinder, and Export buttons container (updated order)
+            div(id = "clear-btn-container",
+                div(id = "clear-export-buttons",
+                    uiOutput("clear_button_ui"),
+                    uiOutput("wormfinder_button_ui"),  # WormFinder button in the middle
+                    uiOutput("export_button_ui")
+                )
+            ),
+            
+            # WormFinder accordion container
+            div(id = "wormfinder-container",
+                uiOutput("wormfinder_list")
+            ),
+            
+            # Results container with reactable output
+            div(id = "results-container",
+                reactableOutput("results_table")
+            ),
+            
+            # Footer text
+            tags$footer("Prototype app by El Poncho")
+          )
 )

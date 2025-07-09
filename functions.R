@@ -188,85 +188,6 @@ display_catalog_around_match <- function(data, input_num) {
 }
 
 # NEW FUNCTION: Display catalog around match using full catalog number
-# display_catalog_around_full_match <- function(data, catalog_number) {
-#   # data must already have row_id column
-#   
-#   matches <- find_exact_catalog_match(data, catalog_number)
-#   
-#   if (nrow(matches) == 0) stop("No matches found for catalog number: ", catalog_number)
-#   
-#   matched_row <- matches %>% slice(1)
-#   
-#   rows_before <- matched_row$rows_before
-#   rows_after <- matched_row$rows_after
-#   
-#   smaller_count <- min(rows_before, rows_after)
-#   if (is.na(smaller_count)) smaller_count <- 0
-#   
-#   if (smaller_count < 5) {
-#     if (rows_before <= rows_after) {
-#       display_before <- rows_before
-#       display_after <- 10
-#     } else {
-#       display_before <- 10
-#       display_after <- rows_after
-#     }
-#   } else {
-#     if (rows_before <= rows_after) {
-#       display_before <- smaller_count
-#       display_after <- 5
-#     } else {
-#       display_before <- 5
-#       display_after <- smaller_count
-#     }
-#   }
-#   
-#   start_row <- max(matched_row$row_id - display_before, 1)
-#   end_row <- min(matched_row$row_id + display_after, nrow(data))
-#   
-#   subset_df <- data %>%
-#     filter(row_id >= start_row & row_id <= end_row) %>%
-#     mutate(
-#       is_matched = (row_id == matched_row$row_id),
-#       neighbours = row_number() - (display_before + 1)
-#     ) %>%
-#     select(-row_id)
-#   
-#   css <- "
-#   .highlighted-row {
-#     background-color: #fff9c4;
-#   }
-#   "
-#   
-#   reactable(
-#     subset_df,
-#     columns = list(
-#       is_matched = colDef(show = FALSE),
-#       neighbours = colDef(name = "Neighbours", align = "center", width = 80)
-#     ),
-#     rowClass = function(index) {
-#       if (subset_df$is_matched[index]) "highlighted-row" else NULL
-#     },
-#     highlight = TRUE,
-#     bordered = TRUE,
-#     striped = TRUE,
-#     pagination = FALSE,
-#     height = 600,
-#     width = 1200
-#   ) %>%
-#     htmltools::browsable() %>%
-#     htmltools::tagList(
-#       htmltools::tags$style(css)
-#     )
-# }
-
-# Example usage:
-# df <- read_csv("combined_with_shelving.csv") %>% mutate(row_id = row_number())
-# matches <- find_catalog_matches_map(df, "0089")
-# display_catalog_around_match(df, "089")
-# display_catalog_around_full_match(df, "ZMH-ANN-PE0078") %>% browsable()
-
-# NEW FUNCTION: Display catalog around match using full catalog number
 display_catalog_around_full_match <- function(data, catalog_number) {
   # data must already have row_id column
   
@@ -311,23 +232,51 @@ display_catalog_around_full_match <- function(data, catalog_number) {
     ) %>%
     select(-row_id)
   
-  # Return reactable directly for Shiny use (remove browsable() and tagList())
+  # Get the actual column names from the data
+  data_cols <- names(subset_df)
+  
+  # Create column definitions only for columns that exist
+  columns_list <- list(
+    is_matched = colDef(show = FALSE),
+    neighbours = colDef(name = "Neighbours", align = "center", width = 80)
+  )
+  
+  # Add other columns dynamically with proper names
+  if ("catalogNumber" %in% data_cols) {
+    columns_list$catalogNumber <- colDef(name = "Catalog Number")
+  }
+  if ("FAMILY" %in% data_cols) {
+    columns_list$FAMILY <- colDef(name = "Family")
+  }
+  if ("GENUS" %in% data_cols) {
+    columns_list$GENUS <- colDef(name = "Genus")
+  }
+  if ("SPECIES" %in% data_cols) {
+    columns_list$SPECIES <- colDef(name = "Species")
+  }
+  if ("SUBSPECIES" %in% data_cols) {
+    columns_list$SUBSPECIES <- colDef(name = "Subspecies")
+  }
+  if ("aisle" %in% data_cols) {
+    columns_list$aisle <- colDef(name = "Aisle")
+  }
+  if ("shelving_unit" %in% data_cols) {
+    columns_list$shelving_unit <- colDef(name = "Shelving Unit")
+  }
+  if ("shelf" %in% data_cols) {
+    columns_list$shelf <- colDef(name = "Shelf")
+  }
+  if ("rows_before" %in% data_cols) {
+    columns_list$rows_before <- colDef(name = "Rows Before")
+  }
+  if ("rows_after" %in% data_cols) {
+    columns_list$rows_after <- colDef(name = "Rows After")
+  }
+  
+  # Return reactable directly for Shiny use
   reactable(
     subset_df,
-    columns = list(
-      is_matched = colDef(show = FALSE),
-      neighbours = colDef(name = "Neighbours", align = "center", width = 80),
-      catalogNumber = colDef(name = "Catalog Number"),
-      FAMILY = colDef(name = "Family"),
-      GENUS = colDef(name = "Genus"),
-      SPECIES = colDef(name = "Species"),
-      SUBSPECIES = colDef(name = "Subspecies"),
-      aisle = colDef(name = "Aisle"),
-      shelving_unit = colDef(name = "Shelving Unit"),
-      shelf = colDef(name = "Shelf"),
-      rows_before = colDef(name = "Rows Before"),
-      rows_after = colDef(name = "Rows After")
-    ),
+    columns = columns_list,
     rowStyle = function(index) {
       if (subset_df$is_matched[index]) {
         list(backgroundColor = "#fff9c4", color = "black")
@@ -350,3 +299,12 @@ display_catalog_around_full_match <- function(data, catalog_number) {
   )
 }
 
+# Helper function to inspect your data structure (for debugging)
+inspect_data_structure <- function(data) {
+  cat("Column names in data:\n")
+  print(names(data))
+  cat("\nFirst few rows:\n")
+  print(head(data, 3))
+  cat("\nData types:\n")
+  print(sapply(data, class))
+}
