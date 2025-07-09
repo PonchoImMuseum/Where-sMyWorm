@@ -232,54 +232,39 @@ display_catalog_around_full_match <- function(data, catalog_number) {
     ) %>%
     select(-row_id)
   
-  # Get the actual column names from the data
+  # Determine the closest boundary row index to highlight in green
+  # If rows_before <= rows_after, closest boundary is the first row in subset_df
+  # Else, closest boundary is the last row in subset_df
+  closest_boundary_index <- if (rows_before <= rows_after) 1 else nrow(subset_df)
+  
+  # Get actual column names for reactable columns
   data_cols <- names(subset_df)
   
-  # Create column definitions only for columns that exist
   columns_list <- list(
     is_matched = colDef(show = FALSE),
     neighbours = colDef(name = "Neighbours", align = "center", width = 80)
   )
   
-  # Add other columns dynamically with proper names
-  if ("catalogNumber" %in% data_cols) {
-    columns_list$catalogNumber <- colDef(name = "Catalog Number")
-  }
-  if ("FAMILY" %in% data_cols) {
-    columns_list$FAMILY <- colDef(name = "Family")
-  }
-  if ("GENUS" %in% data_cols) {
-    columns_list$GENUS <- colDef(name = "Genus")
-  }
-  if ("SPECIES" %in% data_cols) {
-    columns_list$SPECIES <- colDef(name = "Species")
-  }
-  if ("SUBSPECIES" %in% data_cols) {
-    columns_list$SUBSPECIES <- colDef(name = "Subspecies")
-  }
-  if ("aisle" %in% data_cols) {
-    columns_list$aisle <- colDef(name = "Aisle")
-  }
-  if ("shelving_unit" %in% data_cols) {
-    columns_list$shelving_unit <- colDef(name = "Shelving Unit")
-  }
-  if ("shelf" %in% data_cols) {
-    columns_list$shelf <- colDef(name = "Shelf")
-  }
-  if ("rows_before" %in% data_cols) {
-    columns_list$rows_before <- colDef(name = "Rows Before")
-  }
-  if ("rows_after" %in% data_cols) {
-    columns_list$rows_after <- colDef(name = "Rows After")
-  }
+  # Add other columns dynamically
+  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number")
+  if ("FAMILY" %in% data_cols) columns_list$FAMILY <- colDef(name = "Family")
+  if ("GENUS" %in% data_cols) columns_list$GENUS <- colDef(name = "Genus")
+  if ("SPECIES" %in% data_cols) columns_list$SPECIES <- colDef(name = "Species")
+  if ("SUBSPECIES" %in% data_cols) columns_list$SUBSPECIES <- colDef(name = "Subspecies")
+  if ("aisle" %in% data_cols) columns_list$aisle <- colDef(name = "Aisle")
+  if ("shelving_unit" %in% data_cols) columns_list$shelving_unit <- colDef(name = "Shelving Unit")
+  if ("shelf" %in% data_cols) columns_list$shelf <- colDef(name = "Shelf")
+  if ("rows_before" %in% data_cols) columns_list$rows_before <- colDef(name = "Rows Before")
+  if ("rows_after" %in% data_cols) columns_list$rows_after <- colDef(name = "Rows After")
   
-  # Return reactable directly for Shiny use
   reactable(
     subset_df,
     columns = columns_list,
     rowStyle = function(index) {
       if (subset_df$is_matched[index]) {
-        list(backgroundColor = "#fff9c4", color = "black")
+        list(backgroundColor = "#fff9c4", color = "black")  # matched row yellow
+      } else if (index == closest_boundary_index) {
+        list(backgroundColor = "#d0f0c0", color = "black")  # closest boundary row green
       } else if (index %% 2 == 0) {
         list(backgroundColor = "#2F6FD9", color = "white")
       } else {
@@ -298,6 +283,7 @@ display_catalog_around_full_match <- function(data, catalog_number) {
     )
   )
 }
+
 
 # Helper function to inspect your data structure (for debugging)
 inspect_data_structure <- function(data) {
