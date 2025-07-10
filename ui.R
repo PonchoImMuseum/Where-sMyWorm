@@ -140,6 +140,11 @@ ui <- div(id = "shiny-app-container",
               flex-direction: column;
             }
 
+            /* Catalog title styling */
+            #catalog_title {
+              margin-bottom: 15px;
+            }
+
             /* WormFinder container styling */
             #wormfinder-container {
               width: 600px;
@@ -236,6 +241,8 @@ ui <- div(id = "shiny-app-container",
             
             # Results container with reactable output
             div(id = "results-container",
+                # Add the catalog title output here, above the reactable
+                uiOutput("catalog_title"),
                 reactableOutput("results_table")
             ),
             
