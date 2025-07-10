@@ -399,6 +399,97 @@ display_catalog_around_full_match <- function(data, catalog_number) {
   return(tbl_with_title)
 }
 
+display_catalog_around_full_match_no_title <- function(data, catalog_number) {
+  matches <- find_exact_catalog_match(data, catalog_number)
+  
+  if (nrow(matches) == 0) stop("No matches found for catalog number: ", catalog_number)
+  
+  matched_row <- matches %>% slice(1)
+  
+  rows_before <- matched_row$rows_before
+  rows_after <- matched_row$rows_after
+  
+  smaller_count <- min(rows_before, rows_after)
+  if (is.na(smaller_count)) smaller_count <- 0
+  
+  if (smaller_count < 5) {
+    if (rows_before <= rows_after) {
+      display_before <- rows_before
+      display_after <- 10
+    } else {
+      display_before <- 10
+      display_after <- rows_after
+    }
+  } else {
+    if (rows_before <= rows_after) {
+      display_before <- smaller_count
+      display_after <- 5
+    } else {
+      display_before <- 5
+      display_after <- smaller_count
+    }
+  }
+  
+  start_row <- max(matched_row$row_id - display_before, 1)
+  end_row <- min(matched_row$row_id + display_after, nrow(data))
+  
+  subset_df <- data %>%
+    filter(row_id >= start_row & row_id <= end_row) %>%
+    mutate(
+      is_matched = (row_id == matched_row$row_id),
+      neighbours = row_number() - (display_before + 1)
+    ) %>%
+    select(-row_id)
+  
+  # Remove aisle, shelving_unit, shelf columns to avoid repetition
+  subset_df <- subset_df %>% select(-any_of(c("aisle", "shelving_unit", "shelf")))
+  
+  closest_boundary_index <- if (rows_before <= rows_after) 1 else nrow(subset_df)
+  
+  data_cols <- names(subset_df)
+  
+  columns_list <- list(
+    is_matched = colDef(show = FALSE),
+    neighbours = colDef(name = "Neighbours", align = "center", width = 80)
+  )
+  
+  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number")
+  if ("FAMILY" %in% data_cols) columns_list$FAMILY <- colDef(name = "Family")
+  if ("GENUS" %in% data_cols) columns_list$GENUS <- colDef(name = "Genus")
+  if ("SPECIES" %in% data_cols) columns_list$SPECIES <- colDef(name = "Species")
+  if ("SUBSPECIES" %in% data_cols) columns_list$SUBSPECIES <- colDef(name = "Subspecies")
+  if ("rows_before" %in% data_cols) columns_list$rows_before <- colDef(name = "Rows Before")
+  if ("rows_after" %in% data_cols) columns_list$rows_after <- colDef(name = "Rows After")
+  
+  reactable(
+    subset_df,
+    columns = columns_list,
+    rowStyle = function(index) {
+      if (subset_df$is_matched[index]) {
+        list(backgroundColor = "#fff9c4", color = "black")
+      } else if (index == closest_boundary_index) {
+        list(backgroundColor = "#d0f0c0", color = "black")
+      } else if (index %% 2 == 0) {
+        list(backgroundColor = "#2F6FD9", color = "white")
+      } else {
+        list(backgroundColor = "#3A87FE", color = "white")
+      }
+    },
+    highlight = TRUE,
+    bordered = TRUE,
+    striped = TRUE,
+    pagination = FALSE,
+    height = 600,
+    width = 1200,
+    compact = TRUE,
+    style = list(
+      backgroundColor = "#3A87FE",
+      color = "white"
+    )
+  )
+}
+
+
 
 # Helper function to inspect your data structure (for debugging)
 inspect_data_structure <- function(data) {

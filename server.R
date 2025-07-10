@@ -16,13 +16,13 @@ server <- function(input, output, session) {
     error_msg = NULL,
     matched_catalog_numbers = character(0),
     selected_catalog_table = NULL,
+    selected_catalog_title = NULL,  # Store title separately
     show_wormfinder = FALSE,
-    catalog_observers = list()  # NEW: Track observers for cleanup
+    catalog_observers = list()  # Track observers for cleanup
   )
   
   # Function to sanitize catalog numbers for button IDs
   sanitize_for_id <- function(cat_num) {
-    # More comprehensive sanitization
     gsub("[^A-Za-z0-9]", "_", cat_num)
   }
   
@@ -66,6 +66,7 @@ server <- function(input, output, session) {
     rv$error_msg <- NULL
     rv$matched_catalog_numbers <- character(0)
     rv$selected_catalog_table <- NULL
+    rv$selected_catalog_title <- NULL  # Clear title
     rv$show_wormfinder <- FALSE
     
     # Clean up observers
@@ -118,8 +119,9 @@ server <- function(input, output, session) {
       distinct(catalogNumber) %>%
       pull(catalogNumber)
     
-    # Clear selected catalog table when new search is performed
+    # Clear selected catalog table and title when new search is performed
     rv$selected_catalog_table <- NULL
+    rv$selected_catalog_title <- NULL
     rv$show_wormfinder <- FALSE
     
     # Clean up old observers before creating new ones
@@ -153,7 +155,23 @@ server <- function(input, output, session) {
           
           obs <- observeEvent(input[[button_id]], {
             tryCatch({
-              rv$selected_catalog_table <- display_catalog_around_full_match(rv$input_table, cat_num)
+              matches <- find_exact_catalog_match(rv$input_table, cat_num)
+              if (nrow(matches) > 0) {
+                matched_row <- matches %>% slice(1)
+                
+                aisle_val <- if ("aisle" %in% colnames(matched_row)) matched_row$aisle[1] else NA
+                shelving_unit_val <- if ("shelving_unit" %in% colnames(matched_row)) matched_row$shelving_unit[1] else NA
+                shelf_val <- if ("shelf" %in% colnames(matched_row)) matched_row$shelf[1] else NA
+                
+                rv$selected_catalog_title <- paste(
+                  "Aisle:", aisle_val,
+                  "Shelving Unit:", shelving_unit_val,
+                  "Shelf:", shelf_val
+                )
+                
+                # Use the no-title version of the function here
+                rv$selected_catalog_table <- display_catalog_around_full_match_no_title(rv$input_table, cat_num)
+              }
               rv$show_wormfinder <- FALSE
             }, error = function(e) {
               rv$error_msg <- paste("Error displaying catalog", cat_num, ":", e$message)
@@ -166,18 +184,17 @@ server <- function(input, output, session) {
     }
   }
   
-  
-  
-  # Updated WormFinder button handler - Toggle visibility
+  # WormFinder button handler - Toggle visibility
   observeEvent(input$wormfinder_btn, {
     rv$show_wormfinder <- !rv$show_wormfinder
-    # Clear selected catalog table when toggling WormFinder
+    # Clear selected catalog table and title when toggling WormFinder
     if (rv$show_wormfinder) {
       rv$selected_catalog_table <- NULL
+      rv$selected_catalog_title <- NULL
     }
   })
   
-  # Updated WormFinder UI output to be reactive
+  # WormFinder UI output
   output$wormfinder_list <- renderUI({
     if (!rv$show_wormfinder || length(rv$matched_catalog_numbers) == 0) {
       return(NULL)
@@ -225,7 +242,6 @@ server <- function(input, output, session) {
                  style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
   })
   
-  # WormFinder button UI with matching styling
   output$wormfinder_button_ui <- renderUI({
     if (length(rv$matched_catalog_numbers) == 0) return(NULL)
     actionButton("wormfinder_btn", label = "WormFinder",
@@ -236,6 +252,16 @@ server <- function(input, output, session) {
     if (is.null(rv$search_results) || nrow(rv$search_results) == 0) return(NULL)
     downloadButton("export_btn", "Export",
                    style = "background:none; border:none; color:#D3D3D3; font-weight:normal; font-size:16px; cursor:pointer; user-select:none; padding:0; text-decoration:underline;")
+  })
+  
+  # Output for catalog title (separate from reactable)
+  output$catalog_title <- renderUI({
+    if (is.null(rv$selected_catalog_title)) return(NULL)
+    
+    div(
+      style = "text-align: center; color: white; font-weight: bold; font-size: 18px; margin-bottom: 15px; padding: 10px; background-color: rgba(255,255,255,0.1); border-radius: 5px;",
+      rv$selected_catalog_title
+    )
   })
   
   output$results_table <- renderReactable({
