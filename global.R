@@ -2,6 +2,7 @@ library(shiny)
 library(tidyverse)
 library(DT)
 library(reactable)
+library(reactablefmtr)  # Added for add_title function
 library(purrr)
 library(htmltools)
 
