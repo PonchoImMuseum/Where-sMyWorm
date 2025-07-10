@@ -2445,6 +2445,35 @@
         "Built": "R 4.4.0; ; 2024-05-31 22:37:46 UTC; unix"
       }
     },
+    "reactablefmtr": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "reactablefmtr",
+        "Type": "Package",
+        "Title": "Streamlined Table Styling and Formatting for Reactable",
+        "Version": "2.0.0",
+        "Authors@R": "c(\n    person(\"Kyle\", \"Cuilla\", role = c(\"aut\", \"cre\", \"cph\"), email = \"kyle.cuilla@gmail.com\"),\n    person(\"Greg\", \"Lin\", role = c(\"ctb\")),\n    person(\"June\", \"Choe\", role = c(\"ctb\")),\n    person(\"Kent\", \"Russell\", role = c(\"ctb\"))\n    )",
+        "Maintainer": "Kyle Cuilla <kyle.cuilla@gmail.com>",
+        "Description": "Provides various features to streamline and enhance the styling of interactive \n    reactable tables with easy-to-use and highly-customizable functions and themes. \n    Apply conditional formatting to cells with data bars, color scales, color tiles,\n    and icon sets. Utilize custom table themes inspired by popular websites such \n    and bootstrap themes. Apply sparkline line & bar charts \n    (note this feature requires the 'dataui' package which can be downloaded from\n    <https://github.com/timelyportfolio/dataui>).\n    Increase the portability and reproducibility of reactable tables by embedding images \n    from the web directly into cells. Save the final table output as a static image or \n    interactive file.",
+        "URL": "https://kcuilla.github.io/reactablefmtr/,\nhttps://github.com/kcuilla/reactablefmtr",
+        "BugReports": "https://github.com/kcuilla/reactablefmtr/issues",
+        "License": "MIT + file LICENSE",
+        "Encoding": "UTF-8",
+        "Depends": "R (>= 3.5.0), reactable (>= 0.2.0)",
+        "Imports": "dplyr, grDevices, htmltools, htmlwidgets (>= 1.5.3), magrittr,\npurrr, sass (>= 0.4.0), shiny, stats, stringr (>= 1.4.0), tippy\n(>= 0.1.0), tools, webshot",
+        "Suggests": "dataui (>= 0.0.1), MASS, scales",
+        "Additional_repositories": "https://kcuilla.github.io/drat/",
+        "RoxygenNote": "7.1.1",
+        "Language": "en-US",
+        "NeedsCompilation": "no",
+        "Packaged": "2022-03-15 23:10:26 UTC; Kyle",
+        "Author": "Kyle Cuilla [aut, cre, cph],\n  Greg Lin [ctb],\n  June Choe [ctb],\n  Kent Russell [ctb]",
+        "Repository": "CRAN",
+        "Date/Publication": "2022-03-16 07:50:02 UTC",
+        "Built": "R 4.4.0; ; 2024-06-01 08:04:19 UTC; unix"
+      }
+    },
     "readr": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -3234,6 +3263,32 @@
         "Built": "R 4.4.1; ; 2024-09-15 19:28:31 UTC; unix"
       }
     },
+    "tippy": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "tippy",
+        "Title": "Add Tooltips to 'R markdown' Documents or 'Shiny' Apps",
+        "Version": "0.1.0",
+        "Authors@R": "person(\"John\", \"Coene\", email = \"jcoenep@gmail.com\", role = c(\"aut\", \"cre\"))",
+        "Description": "'Htmlwidget' of 'Tippyjs' to add tooltips to 'Shiny' apps and 'R markdown' documents.",
+        "Depends": "R (>= 3.4.0)",
+        "License": "MIT + file LICENSE",
+        "Encoding": "UTF-8",
+        "LazyData": "true",
+        "Imports": "htmlwidgets, htmltools, shiny, jsonlite",
+        "RoxygenNote": "7.1.1",
+        "URL": "https://tippy.john-coene.com/",
+        "BugReports": "https://github.com/JohnCoene/tippy/issues",
+        "NeedsCompilation": "no",
+        "Packaged": "2021-01-11 20:42:47 UTC; jp",
+        "Author": "John Coene [aut, cre]",
+        "Maintainer": "John Coene <jcoenep@gmail.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2021-01-11 21:10:02 UTC",
+        "Built": "R 4.4.0; ; 2024-06-01 03:32:33 UTC; unix"
+      }
+    },
     "tzdb": {
       "Source": "CRAN",
       "Repository": "https://cran.rstudio.com",
@@ -3405,6 +3460,34 @@
         "Date/Publication": "2023-12-05 23:50:02 UTC",
         "Built": "R 4.4.0; x86_64-apple-darwin20; 2024-05-31 22:36:41 UTC; unix",
         "Archs": "vroom.so.dSYM"
+      }
+    },
+    "webshot": {
+      "Source": "CRAN",
+      "Repository": "https://cran.rstudio.com",
+      "description": {
+        "Package": "webshot",
+        "Title": "Take Screenshots of Web Pages",
+        "Version": "0.5.5",
+        "Authors@R": "c(\n    person(\"Winston\", \"Chang\", email = \"winston@rstudio.com\", role = c(\"aut\", \"cre\")),\n    person(\"Yihui\", \"Xie\", role = \"ctb\"),\n    person(\"Francois\", \"Guillem\", role = \"ctb\"),\n    person(\"Barret\", \"Schloerke\", role = \"ctb\"),\n    person(\"Nicolas\", \"Perriault\", role = \"ctb\", comment = \"The CasperJS library\")\n    )",
+        "Description": "Takes screenshots of web pages, including Shiny applications and R\n    Markdown documents.",
+        "Depends": "R (>= 3.0)",
+        "Imports": "magrittr, jsonlite, callr",
+        "Suggests": "httpuv, knitr, rmarkdown, shiny, testthat (>= 3.0.0)",
+        "License": "GPL-2",
+        "SystemRequirements": "PhantomJS for taking screenshots, ImageMagick or\nGraphicsMagick and OptiPNG for manipulating images.",
+        "RoxygenNote": "7.2.3",
+        "Encoding": "UTF-8",
+        "URL": "https://wch.github.io/webshot/, https://github.com/wch/webshot/",
+        "BugReports": "https://github.com/wch/webshot/issues",
+        "Config/testthat/edition": "3",
+        "NeedsCompilation": "no",
+        "Packaged": "2023-06-26 22:07:00 UTC; winston",
+        "Author": "Winston Chang [aut, cre],\n  Yihui Xie [ctb],\n  Francois Guillem [ctb],\n  Barret Schloerke [ctb],\n  Nicolas Perriault [ctb] (The CasperJS library)",
+        "Maintainer": "Winston Chang <winston@rstudio.com>",
+        "Repository": "CRAN",
+        "Date/Publication": "2023-06-26 23:30:02 UTC",
+        "Built": "R 4.4.0; ; 2024-05-31 07:06:24 UTC; unix"
       }
     },
     "withr": {
@@ -3591,13 +3674,13 @@
       "checksum": "0776198fe947ed77b1b8e83e6a9c2fec"
     },
     "functions.R": {
-      "checksum": "847cfd0e5f989093fefb2a3bf5314978"
+      "checksum": "bb41ce897e251f03b176bc61f17742e5"
     },
     "global.R": {
-      "checksum": "7a5e78106aba9be258eb26966d9d1284"
+      "checksum": "4e7923ef52bc3058d5684f0d389a6339"
     },
     "server.R": {
-      "checksum": "bba54d5db4537d316e09df146e679566"
+      "checksum": "f8bede9d9c99d37ee8109a02abef0a58"
     },
     "temporal mrger of exported results.R": {
       "checksum": "f93f4004ad28fc177b6fe869d781dcfc"
@@ -3609,7 +3692,7 @@
       "checksum": "4098d4e2ba2ed31ba9540d5786d22d37"
     },
     "ui.R": {
-      "checksum": "3c6d014ca5432dc7ed8b4e65db8868da"
+      "checksum": "c6ab2f2cdf45ca9d5adf2204b14f4d06"
     },
     "WormFinder.R": {
       "checksum": "2db8ebd53f6d7e91659333b5d0daa102"
