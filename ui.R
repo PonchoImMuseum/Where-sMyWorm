@@ -122,16 +122,22 @@ ui <- div(id = "shiny-app-container",
               text-decoration: underline;
             }
 
-            /* Results container fills remaining space and scrolls */
+            /* Updated CSS for ui.R - Replace the #results-container section */
+
+            /* Results container - Updated for sticky column support */
+           /* Add these CSS rules to your existing ui.R CSS - DO NOT replace existing rules */
+
+            /* Results container - ONLY modify overflow and width */
             #results-container {
               flex-grow: 1;
               min-height: 0;
+              overflow-x: auto; 
               overflow-y: auto;
-              width: 90%;
-              max-width: 900px;
+              width: 95%; /* Increased from 90% to allow horizontal scrolling */
+              max-width: 1400px; /* Increased from 1000px to accommodate wider table */
               margin: 0 auto;
               box-sizing: border-box;
-              padding: 10px 10px 50px 10px; /* Padding bottom to avoid footer overlap */
+              padding: 10px 10px 50px 10px;
               background-color: rgba(255,255,255,0.1);
               border-radius: 10px;
               color: white;
@@ -139,10 +145,90 @@ ui <- div(id = "shiny-app-container",
               display: flex;
               flex-direction: column;
             }
+            
+            /* Ensure reactable sticky columns work properly */
+.reactable .rt-table {
+  overflow: visible !important;
+}
 
-            /* Catalog title styling */
+/* Enable sticky headers for vertical scrolling */
+.reactable .rt-thead .rt-th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  background-color: #3A87FE !important;
+}
+
+/* Fix sticky column positioning with proper background and z-index */
+.reactable .rt-td-sticky-left,
+.reactable .rt-th-sticky-left {
+  position: sticky !important;
+  left: 0 !important;
+  z-index: 15 !important;
+  background-color: inherit !important;
+  /* Add border to prevent content bleeding */
+  border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Ensure sticky header cells have higher z-index and solid background */
+.reactable .rt-th-sticky-left {
+  z-index: 35 !important;
+  /* Ensure header has solid background */
+  background-color: #3A87FE !important;
+  /* Add box shadow to create separation */
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+  /* Ensure it's sticky both horizontally and vertically */
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+}
+
+/* Fix sticky data cells to have proper background based on row styling */
+.reactable .rt-td-sticky-left {
+  z-index: 20 !important;
+  /* Add box shadow for separation */
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure alternating row colors are maintained on sticky cells */
+.reactable .rt-tr:nth-child(even) .rt-td-sticky-left {
+  background-color: #2F6FD9 !important;
+}
+
+.reactable .rt-tr:nth-child(odd) .rt-td-sticky-left {
+  background-color: #3A87FE !important;
+}
+
+/* Handle special row styling for highlighted rows */
+.reactable .rt-tr.highlighted-row .rt-td-sticky-left {
+  background-color: #fff9c4 !important;
+  color: black !important;
+}
+
+/* Handle green boundary row styling - using class-based approach */
+.reactable .rt-tr.boundary-row .rt-td-sticky-left {
+  background-color: #d0f0c0 !important;
+  color: black !important;
+}
+
+/* Fix any potential overflow issues */
+.reactable .rt-thead,
+.reactable .rt-tbody {
+  position: relative !important;
+  z-index: 10 !important;
+}
+
+/* Ensure the table container doesn't interfere */
+.reactable {
+  position: relative !important;
+  z-index: 5 !important;
+}
+            
+            /* Catalog title styling - Updated */
             #catalog_title {
               margin-bottom: 15px;
+              position: relative;
+              z-index: 5;
             }
 
             /* WormFinder container styling */

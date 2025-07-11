@@ -264,6 +264,12 @@ server <- function(input, output, session) {
     )
   })
   
+  # Updated reactable configuration in server.R
+  # Replace the output$results_table section with this:
+  
+  output$results_table <- renderReactable# Replace ONLY the output$results_table section in server.R
+  # Keep everything else exactly as it was
+  
   output$results_table <- renderReactable({
     # Show selected catalog table if available
     if (!is.null(rv$selected_catalog_table)) {
@@ -287,7 +293,7 @@ server <- function(input, output, session) {
     reactable(
       rv$search_results,
       columns = list(
-        catalogNumber = colDef(name = "Catalog Number"),
+        catalogNumber = colDef(name = "Catalog Number", sticky = "left"),
         FAMILY = colDef(name = "Family"),
         GENUS = colDef(name = "Genus"),
         SPECIES = colDef(name = "Species"),

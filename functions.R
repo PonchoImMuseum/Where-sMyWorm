@@ -350,7 +350,7 @@ display_catalog_around_full_match <- function(data, catalog_number) {
   )
   
   # Add other columns dynamically except aisle, shelving_unit, shelf
-  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number")
+  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number", sticky = "left")
   if ("FAMILY" %in% data_cols) columns_list$FAMILY <- colDef(name = "Family")
   if ("GENUS" %in% data_cols) columns_list$GENUS <- colDef(name = "Genus")
   if ("SPECIES" %in% data_cols) columns_list$SPECIES <- colDef(name = "Species")
@@ -398,6 +398,9 @@ display_catalog_around_full_match <- function(data, catalog_number) {
   
   return(tbl_with_title)
 }
+
+# Replace ONLY the display_catalog_around_full_match_no_title function
+# Keep everything else exactly as it was
 
 display_catalog_around_full_match_no_title <- function(data, catalog_number) {
   matches <- find_exact_catalog_match(data, catalog_number)
@@ -453,7 +456,8 @@ display_catalog_around_full_match_no_title <- function(data, catalog_number) {
     neighbours = colDef(name = "Neighbours", align = "center", width = 80)
   )
   
-  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number")
+  # ONLY add sticky = "left" to catalogNumber, keep everything else the same
+  if ("catalogNumber" %in% data_cols) columns_list$catalogNumber <- colDef(name = "Catalog Number", sticky = "left")
   if ("FAMILY" %in% data_cols) columns_list$FAMILY <- colDef(name = "Family")
   if ("GENUS" %in% data_cols) columns_list$GENUS <- colDef(name = "Genus")
   if ("SPECIES" %in% data_cols) columns_list$SPECIES <- colDef(name = "Species")
@@ -481,7 +485,7 @@ display_catalog_around_full_match_no_title <- function(data, catalog_number) {
     pagination = FALSE,
     height = 600,
     width = 1200,
-    compact = TRUE,
+    compact = FALSE,
     style = list(
       backgroundColor = "#3A87FE",
       color = "white"
