@@ -194,26 +194,21 @@ server <- function(input, output, session) {
     }
   })
   
-  # WormFinder UI output
+  # WormFinder UI output - UPDATED to remove accordion and show only actionButtons
   output$wormfinder_list <- renderUI({
     if (!rv$show_wormfinder || length(rv$matched_catalog_numbers) == 0) {
       return(NULL)
     }
     
-    bslib::accordion(
-      id = "wormfinder_accordion",
+    # Create a simple div with buttons instead of accordion
+    div(
+      style = "display: flex; flex-direction: column; gap: 10px; align-items: center;",
       lapply(rv$matched_catalog_numbers, function(cat_num) {
         button_id <- paste0("catalog_btn_", sanitize_for_id(cat_num))
-        bslib::accordion_panel(
-          title = cat_num,
-          div(
-            style = "text-align: center; margin: 10px 0;",
-            actionButton(
-              button_id, 
-              label = paste("Show", cat_num, "location"),
-              style = "background-color: #5AC4F6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;"
-            )
-          )
+        actionButton(
+          button_id, 
+          label = paste("Show", cat_num, "location"),
+          style = "background-color: #5AC4F6; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin: 5px 0;"
         )
       })
     )
@@ -266,9 +261,6 @@ server <- function(input, output, session) {
   
   # Updated reactable configuration in server.R
   # Replace the output$results_table section with this:
-  
-  output$results_table <- renderReactable# Replace ONLY the output$results_table section in server.R
-  # Keep everything else exactly as it was
   
   output$results_table <- renderReactable({
     # Show selected catalog table if available
